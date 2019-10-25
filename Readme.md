@@ -1,5 +1,18 @@
-## Learn how to Read and Write Excel files in Java using Apache POI
+## excel-utils
 
-[How to Read Excel files in Java using Apache POI](https://www.callicoder.com/java-read-excel-file-apache-poi/)
+Functional API over Apache POI
 
-[How to Write to an Excel file in Java using Apache POI](https://www.callicoder.com/java-write-excel-file-apache-poi/)
+Parsing Excel file functionally
+
+## Comment construire une API "Fonctionnelle"
+
+# Définition d'une fonction
+
+Une fonction fait correspondre à chaque élément d'un ensemble A, un et un seul élément de l'ensemble B.
+
+Si pour certaine valeurs de A, on ne trouve pas de correspondance dans l'ensemble B on est en présence d'une 
+fonction partielle.
+
+Typiquement, en Java, pour traiter ce genre de problème, on va lancer une exception.
+
+En programmation fonctionnelle, on proscrit l'utilisation de fonctions partielles.
