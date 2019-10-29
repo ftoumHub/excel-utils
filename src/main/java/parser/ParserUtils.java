@@ -11,6 +11,7 @@ import java.util.function.Function;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -127,6 +128,25 @@ public class ParserUtils {
                         Case($(1), right(d.head())),
                         Case($(), left(new ParserError.InvalidFormat(name, "Single Numeric", "0 or more than 1 value")))
                 ));
+    }
+
+    public static Either<String, Integer> properFlatMapOfEither(String age) {
+        Either<String, String> outerEither = Option
+                .of(age)
+                .map(Either::<String, String>right)
+                .getOrElse(Either.left("empty"));
+
+        Either<String, Integer> flattened = outerEither
+                .flatMap(e -> eitherWrapper(e));
+
+        return flattened;
+    }
+
+    public static Either<String, Integer> eitherWrapper(String value) {
+        return Try
+                .of(() -> value)
+                .map(v -> Either.<String, Integer>right(Integer.valueOf(v)))
+                .getOrElse(() -> Either.left(value));
     }
 
     static <A, B> Parser<B> flatMap(Parser<A> fa, Function<A, Parser<B>> f) {

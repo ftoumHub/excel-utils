@@ -16,3 +16,11 @@ fonction partielle.
 Typiquement, en Java, pour traiter ce genre de problème, on va lancer une exception.
 
 En programmation fonctionnelle, on proscrit l'utilisation de fonctions partielles.
+
+# Générer la documentation
+
+```bash
+mvn process-resources
+```
+
+La doc est généré dans le répertoire target\generated-docs

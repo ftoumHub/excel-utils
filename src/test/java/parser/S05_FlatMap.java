@@ -1,6 +1,7 @@
 package parser;
 
 import static io.vavr.API.println;
+import static parser.ParserUtils.properFlatMapOfEither;
 
 import java.io.IOException;
 
@@ -27,6 +28,15 @@ public class S05_FlatMap {
     @BeforeClass
     public static void setup() throws IOException, InvalidFormatException {
         workbook = IO.load("example.xlsx");
+    }
+
+    @Test
+    public void properFlatMapEither() {
+        println(properFlatMapOfEither("18")); // Right(18)
+
+        println(properFlatMapOfEither(null)); // Left(empty)
+
+        println(properFlatMapOfEither("Test")); // Left(Test)
     }
 
     @Test
