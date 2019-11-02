@@ -1,6 +1,5 @@
 package parser;
 
-//import fr.maif.util.societaire.ReferenceSocietaire;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.apache.poi.ss.usermodel.Cell;
@@ -10,9 +9,20 @@ public class SafeCell {
     private Cell cell;
     private String reference;
 
+    public SafeCell() {
+    }
+
     public SafeCell(Cell cell) {
         this.cell = cell;
         this.reference = String.format("%s!%s", cell.getSheet().getSheetName(), cell.getAddress());
+    }
+
+    public Cell getCell() {
+        return cell;
+    }
+
+    public String getReference() {
+        return reference;
     }
 
     public Either<ParserErrorClass, Double> asDoubleV0() {
@@ -48,19 +58,4 @@ public class SafeCell {
                         this.reference, "Numeric", doubleTry.getCause().getMessage()))
                 : Either.right((Double) doubleTry.get());
     }
-
-    /**public Either<ParserError, ReferenceSocietaire> asRefSoc() {
-        Try refSocTry = Try.of(() -> ReferenceSocietaire.ofRefSoc(this.cell.getStringCellValue()));
-
-        if (refSocTry.isFailure()) {
-            // Match sur l'instance d'erreur (RefError ou autre)
-            // match sur les erreurs possibles provenant de ReferenceSocietaire
-            refSocTry.toEither().getLeft();
-        }
-
-        return refSocTry.isFailure()
-                ? Either.left(new ParserError.InvalidFormat(
-                        this.reference, "Numeric", refSocTry.getCause().getMessage()))
-                : Either.right((ReferenceSocietaire) refSocTry.get());
-    }*/
 }

@@ -5,6 +5,9 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
+import static io.vavr.control.Either.sequenceRight;
+import static libs.ExcelUtils.getArea;
+import static libs.ExcelUtils.getSafeCell;
 
 import java.util.function.Function;
 
@@ -16,7 +19,6 @@ import io.vavr.control.Try;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
-import org.apache.poi.ss.util.CellReference;
 
 public class ParserUtils {
 
@@ -45,7 +47,7 @@ public class ParserUtils {
         // Ici, on se retrouve avec une List<Either<ParserErrorClass, Double>>
         List<Either<ParserErrorClass, Double>> doubles = safeCells.map(SafeCell::asDoubleV1);
         // On transforme cette liste en Either<ParserErrorClass, Seq<Double>> avec Either.sequenceRight
-        return Either.sequenceRight(doubles);
+        return sequenceRight(doubles);
     }
 
     public static Either<ParserError, Seq<Double>> numericRangeV2(Workbook workbook, String name) {
@@ -53,26 +55,21 @@ public class ParserUtils {
                     parseError -> left(parseError),
                     areaRef -> {
                         Either<ParserError, Seq<SafeCell>> seqSafe =
-                                Either.sequenceRight(List.of(areaRef.getAllReferencedCells())
+                                sequenceRight(List.of(areaRef.getAllReferencedCells())
                                         .map(cellRef -> getSafeCell(workbook, cellRef)));
-                        return Either.sequenceRight(seqSafe.get().map(SafeCell::asDouble).toList());
+                        return sequenceRight(seqSafe.get().map(SafeCell::asDouble).toList());
                     });
     }
 
-    static Either<ParserError, AreaReference> getArea(Workbook workbook, String name) {
-        return Try.of(() -> new AreaReference(workbook.getName(name).getRefersToFormula(),
-                                              workbook.getSpreadsheetVersion()))
-                .fold(e -> left(new ParserError.MissingName(name)), areaRef -> right(areaRef));
-    }
-
-    static Either<ParserError, SafeCell> getSafeCell(Workbook workbook, CellReference cellRef) {
-        Try safeCellTry = Try.of(() -> new SafeCell(
-                workbook.getSheet(cellRef.getSheetName())
-                        .getRow(cellRef.getRow())
-                        .getCell(cellRef.getCol())));
-        return safeCellTry.isFailure()
-                ? left(new ParserError.MissingCell(cellRef.toString()))
-                : right((SafeCell)safeCellTry.get());
+    public static Either<ParserError, Seq<Double>> numericRangeV2Bis(final Workbook workbook, final String name) {
+        return getArea(workbook, name)
+                .flatMap(areaRef -> {
+                    final List<Either<ParserError, SafeCell>> maybeSafeCell =
+                            List.of(areaRef.getAllReferencedCells())
+                                .map(cellRef -> getSafeCell(workbook, cellRef));
+                    return sequenceRight(maybeSafeCell);
+                })
+                .flatMap(safeCells -> sequenceRight(safeCells.map(SafeCell::asDouble).toList()));
     }
 
     /**
@@ -87,7 +84,7 @@ public class ParserUtils {
                 if (area.isLeft()) return Either.left(area.getLeft());
 
                 Either<ParserError, Seq<Double>> seqSafe =
-                        Either.sequenceRight(List.of(area.get().getAllReferencedCells())
+                        sequenceRight(List.of(area.get().getAllReferencedCells())
                                 .map(cellRef -> getSafeCell(workbook, cellRef)).toList()
                                 .map(sf -> sf.get().asDouble()).toList());
 
@@ -109,9 +106,9 @@ public class ParserUtils {
                         parseError -> left(parseError),
                         areaRef -> {
                             Either<ParserError, Seq<SafeCell>> seqSafe =
-                                    Either.sequenceRight(List.of(areaRef.getAllReferencedCells())
+                                    sequenceRight(List.of(areaRef.getAllReferencedCells())
                                             .map(cellRef -> getSafeCell(workbook, cellRef)));
-                            return Either.sequenceRight(seqSafe.get().map(SafeCell::asDouble).toList());
+                            return sequenceRight(seqSafe.get().map(SafeCell::asDouble).toList());
                         });
                 return erreurOuListe.flatMap(d -> Match(d.size()).of(
                         Case($(1), right(d.head())),

@@ -1,5 +1,7 @@
 package parser;
 
+import static io.vavr.API.Right;
+import static io.vavr.API.Vector;
 import static io.vavr.API.println;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -80,10 +82,38 @@ public class S03_Numeric_Range {
     }
 
     @Test
-    public void numericRangeWithParserError() {
+    public void numericRangeV2WithParserError() {
         // Dans numericRangeV2, on utilise l'interface ParserError...
         println(numericRangeV2(workbook, "OilProd"));
+
+        assertEquals(Right(Vector(10.12, 12.34, 8.83, 6.23, 9.18, 12.36, 16.28, 18.25, 20.01)),
+                     numericRangeV2(workbook, "OilProd"));
+
         println(numericRangeV2(workbook, "PrimaryProduct"));
+
+        final Either<ParserError, Seq<Double>> primaryProduct = numericRangeV2(workbook, "PrimaryProduct");
+        assertEquals("Cannot get a NUMERIC value from a STRING cell",
+                ((ParserError.InvalidFormat)primaryProduct.getLeft()).getMessage());
+
         println(numericRangeV2(workbook, "foo"));
+
+    }
+
+    @Test
+    public void numericRangeV2BisWithParserError() {
+        // Dans numericRangeV2, on utilise l'interface ParserError...
+        println(numericRangeV2Bis(workbook, "OilProd"));
+
+        assertEquals(Right(Vector(10.12, 12.34, 8.83, 6.23, 9.18, 12.36, 16.28, 18.25, 20.01)),
+                numericRangeV2Bis(workbook, "OilProd"));
+
+        println(numericRangeV2Bis(workbook, "PrimaryProduct"));
+
+        final Either<ParserError, Seq<Double>> primaryProduct = numericRangeV2Bis(workbook, "PrimaryProduct");
+        assertEquals("Cannot get a NUMERIC value from a STRING cell",
+                ((ParserError.InvalidFormat)primaryProduct.getLeft()).getMessage());
+
+        println(numericRangeV2Bis(workbook, "foo"));
+
     }
 }

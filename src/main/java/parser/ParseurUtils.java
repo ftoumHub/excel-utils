@@ -9,12 +9,12 @@ import static io.vavr.Patterns.$Right;
 import static io.vavr.Patterns.$Tuple2;
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
+import static libs.ExcelUtils.getArea;
+import static libs.ExcelUtils.getSafeCell;
 
 import java.util.function.Function;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.AreaReference;
-import org.apache.poi.ss.util.CellReference;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -56,23 +56,6 @@ public class ParseurUtils {
                                                 .map(cellRef -> getSafeCell(workbook, cellRef)).toList()));
             }
         };
-    }
-
-    static Either<ParserError, AreaReference> getArea(Workbook workbook, String name) {
-        return Try.of(() -> new AreaReference(workbook.getName(name).getRefersToFormula(),
-                workbook.getSpreadsheetVersion()))
-                .map(areaRef -> Either.<ParserError, AreaReference>right(areaRef))
-                .getOrElse(() -> left(new ParserError.MissingName(name)));
-    }
-
-    static Either<ParserError, SafeCell> getSafeCell(Workbook workbook, CellReference cellRef) {
-        Try safeCellTry = Try.of(() -> new SafeCell(
-                workbook.getSheet(cellRef.getSheetName())
-                        .getRow(cellRef.getRow())
-                        .getCell(cellRef.getCol())));
-        return safeCellTry.isFailure()
-                ? left(new ParserError.MissingCell(cellRef.toString()))
-                : right((SafeCell)safeCellTry.get());
     }
 
     static <A, B> Parseur<B> flatMap(Parseur<A> fa, Function<A, Parseur<B>> f) {
