@@ -22,6 +22,19 @@ public interface ParserError {
         public String toString() {
             return "InvalidFormat(" + ref + ", " + expectedFormat + ", " + message + ')';
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            InvalidFormat that = (InvalidFormat) o;
+
+            if (ref != null ? !ref.equals(that.ref) : that.ref != null) return false;
+            if (expectedFormat != null ? !expectedFormat.equals(that.expectedFormat) : that.expectedFormat != null)
+                return false;
+            return message != null ? message.equals(that.message) : that.message == null;
+        }
     }
 
     class MissingName implements ParserError {
@@ -35,6 +48,16 @@ public interface ParserError {
         @Override
         public String toString() {
             return "MissingName(" + name + ")";
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MissingName that = (MissingName) o;
+
+            return name != null ? name.equals(that.name) : that.name == null;
         }
     }
 

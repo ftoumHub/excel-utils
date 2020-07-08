@@ -1,16 +1,21 @@
 package parser;
 
-import static io.vavr.API.println;
-
-import org.junit.Test;
-
 import io.vavr.collection.List;
 import io.vavr.control.Either;
+import org.junit.jupiter.api.Test;
+
+import static io.vavr.API.Left;
+import static io.vavr.API.Right;
+import static io.vavr.API.println;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class S01_Introduction {
 
     /**
-     * Ceci est une fonction "partielle"
+     * Un exemple de fonction "partielle", susceptible de retourner une exception.
      */
     // tag::estAdultePartielle[]
     public Boolean estAdultePartielle(Integer age) {
@@ -24,17 +29,17 @@ public class S01_Introduction {
     // tag::estAdultePartielleTest[]
     @Test
     public void estAdultePartielleTest() {
-        println(estAdultePartielle(4)); // false
+        assertFalse(estAdultePartielle(4));
 
-        println(estAdultePartielle(25)); // true
+        assertTrue(estAdultePartielle(25)); // true
 
-        //println(estAdultePartielle(-10)); // java.lang.IllegalArgumentException
+        assertThrows(IllegalArgumentException.class, () -> estAdultePartielle(-10));
     }
     // end::estAdultePartielleTest[]
 
     /**
      * On a donc un problème car lorsqu'on appelle cette méthode, on ne sait pas si il s'agit
-     * d'une fonction partielle ou totale. Rien ne nous l'indique.
+     * d'une fonction partielle ou totale (sauf si on indique throws ... dans la signature de la méthode).
      * On doit regarder l'implémentation ou la doc...
      *
      * Le seul moyen de traiter l'erreur est donc de catcher la ou les exceptions qui peuvent survenir.
@@ -56,11 +61,11 @@ public class S01_Introduction {
     // tag::estAdulteTest[]
     @Test
     public void estAdulteTest() {
-        println(estAdulte(4));  // Right(false)
+        assertEquals(Right(false), estAdulte(4));
 
-        println(estAdulte(25)); // Right(true)
+        assertEquals(Right(true), estAdulte(25));
 
-        println(estAdulte(-2)); // Left(l'age doit être un entier positif)
+        assertEquals(Left("l'age doit être un entier positif"), estAdulte(-2));
     }
     // end::estAdulteTest[]
 

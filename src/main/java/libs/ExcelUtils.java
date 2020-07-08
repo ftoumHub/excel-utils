@@ -16,9 +16,11 @@ import parser.SafeCell;
 public class ExcelUtils {
 
     public static Either<ParserError, AreaReference> getArea(Workbook workbook, String name) {
-        return Try.of(() -> new AreaReference(workbook.getName(name).getRefersToFormula(),
-                workbook.getSpreadsheetVersion()))
-                .fold(e -> left(new ParserError.MissingName(name)), areaRef -> right(areaRef));
+        return Try.of(() -> new AreaReference(workbook.getName(name).getRefersToFormula(), workbook.getSpreadsheetVersion()))
+                .fold(
+                        e -> left(new ParserError.MissingName(name)),
+                        areaRef -> right(areaRef)
+                );
     }
 
     public static Either<ParserError, SafeCell> getSafeCell(Workbook workbook, CellReference cellRef) {
