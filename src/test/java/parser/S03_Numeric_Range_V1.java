@@ -3,6 +3,7 @@ package parser;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
 import org.junit.jupiter.api.Test;
@@ -47,15 +48,27 @@ public class S03_Numeric_Range_V1 extends WithExampleWorkbook {
     }
 
 
-    // En utilisant SafeCell, on renvoi une Either<ParserErrorX, Double> pour chaque cellule
+    // En utilisant SafeCell, on renvoi une Either<ParserErrorClass, Double> pour chaque cellule
     private static Either<ParserErrorClass, Seq<Double>> numericRangeV1(Workbook workbook, String name) {
         String formula = workbook.getName(name).getRefersToFormula();
         AreaReference area = new AreaReference(formula, workbook.getSpreadsheetVersion());
 
         // Problème, ici, on se retrouve avec une List<Either<ParserErrorClass, Double>>
         // On transforme cette liste en Either<ParserErrorClass, Seq<Double>> avec Either.sequenceRight
+
+        final List<Cell> cells = List.of(area.getAllReferencedCells())
+                .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
+                        .getRow(cellRef.getRow())
+                        .getCell(cellRef.getCol())).toList();
+
+        final List<SafeCell_V0> safeCells = cells.map(SafeCell_V0::new);
+
+        final List<Either<ParserErrorClass, Double>> doubles = safeCells.map(SafeCell_V0::asDouble);
+
+        final Either<ParserErrorClass, Seq<Double>> seqs = Either.sequenceRight(doubles);
+
         return Either.sequenceRight(List.of(area.getAllReferencedCells())
-                .map(cellRef ->  workbook.getSheet(cellRef.getSheetName())
+                .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
                         .getRow(cellRef.getRow())
                         .getCell(cellRef.getCol()))
                 .map(SafeCell_V0::new)

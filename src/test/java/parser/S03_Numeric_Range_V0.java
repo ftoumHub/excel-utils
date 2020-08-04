@@ -36,8 +36,9 @@ public class S03_Numeric_Range_V0 extends WithExampleWorkbook {
     }
 
 
-
-    // On retourne une liste de Double, ou une exception si on est pas sur une plage de valeurs numériques
+    /**
+     * On retourne une liste de Double, ou une exception si on est pas sur une plage de valeurs numériques
+     */
     private static List<Double> numericRangeV0(Workbook workbook, String name) {
         String formula = workbook.getName(name).getRefersToFormula();
         AreaReference area = new AreaReference(formula, workbook.getSpreadsheetVersion());

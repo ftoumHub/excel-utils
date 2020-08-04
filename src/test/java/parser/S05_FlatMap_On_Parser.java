@@ -1,17 +1,14 @@
 package parser;
 
-import io.vavr.collection.List;
-import io.vavr.collection.Seq;
+import io.vavr.control.Either;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.junit.jupiter.api.Test;
 
+import static io.vavr.API.Right;
 import static io.vavr.API.println;
-import static parser.CParser.map;
-import static parser.CParser.product;
-import static parser.CParserUtils.numeric;
-import static parser.CParserUtils.numericRange;
-import static parser.CParserUtils.production;
-import static parser.ParserUtils.numeric;
-import static parser.ParserUtils.properFlatMapOfEither;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Jusqu'à présent, nous avons utilisé Either.flatMap pour transformer
@@ -31,40 +28,34 @@ public class S05_FlatMap_On_Parser extends WithExampleWorkbook{
     }
 
     @Test
-    public void curriedParser() {
-        // numeric utilise flatMap sur l'either retourné par numericRangeV2
-        // On transforme ainsi un Either<ParserError, Seq<Double>> en Either<ParserError, Double>
+    public void build_numeric_with_flatMap_on_parser() {
+        // numeric utilise flatMap sur Parser
+        assertEquals(ParserUtils.numeric().parse(workbook, "ExplorationFee"),
+                Right(1.4));
 
-        println(numericRange("OilProd").parse(workbook));
-        println(numeric("OilProd").parse(workbook));
-        println(numeric("ExplorationFee").parse(workbook));
-        println(numericRange("foo").parse(workbook));
-    }
+        assertThat(ParserUtils.numeric().parse(workbook, "OilProd").getLeft())
+                .isInstanceOf(ParserError.InvalidFormat.class);
 
-    @Test
-    public void implementingProduction() {
-        println(CParserUtils.production_V0().parse(workbook));
-        println(CParserUtils.production2().parse(workbook));
-
-        final CParser<Seq<Double>> oil = numericRange("OilProd");
-        final CParser<Seq<Double>> gas = numericRange("GasProd");
-        final CParser<Seq<Double>> foo = numericRange("foo");
-
-        println(product(oil, gas).parse(workbook));
-        println(product(oil, foo).parse(workbook));
-
-        final CParser<OilProduction> oilProduction = map(numericRange("OilProd"), o -> new OilProduction(o));
-        println(oilProduction.parse(workbook));
-
-        println(production().parse(workbook));
+        assertThat(ParserUtils.numeric().parse(workbook, "foo").getLeft())
+                .isInstanceOf(ParserError.MissingName.class);
     }
 
 
-    class OilProduction {
-         private Seq<Double> value;
+    /**
+     * Exemple d'utilisation de flatMap sur Either
+     */
+    public static Either<String, Integer> properFlatMapOfEither(String age) {
+        return Option
+                .of(age)
+                .map(Either::<String, String>right)
+                .getOrElse(Either.left("empty"))
+                .flatMap(S05_FlatMap_On_Parser::eitherWrapper);
+    }
 
-        public OilProduction(Seq<Double> value) {
-            this.value = value;
-        }
+    private static Either<String, Integer> eitherWrapper(String value) {
+        return Try
+                .of(() -> value)
+                .map(v -> Either.<String, Integer>right(Integer.valueOf(v)))
+                .getOrElse(() -> Either.left(value));
     }
 }

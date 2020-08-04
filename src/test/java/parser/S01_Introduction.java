@@ -4,8 +4,6 @@ import io.vavr.collection.List;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Function;
-
 import static io.vavr.API.Left;
 import static io.vavr.API.Right;
 import static io.vavr.API.println;

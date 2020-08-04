@@ -1,17 +1,15 @@
 package libs;
 
-import static io.vavr.control.Either.left;
-import static io.vavr.control.Either.right;
-
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
-
-import io.vavr.control.Either;
-import io.vavr.control.Try;
 import parser.ParserError;
 import parser.SafeCell;
+
+import static io.vavr.control.Either.left;
 
 public class ExcelUtils {
 
@@ -26,10 +24,11 @@ public class ExcelUtils {
     }
 
     public static Either<ParserError, SafeCell> getSafeCell(Workbook workbook, CellReference cellRef) {
-        Try<SafeCell> safeCellTry = Try.of(() -> new SafeCell(getCell(workbook, cellRef)));
-        return safeCellTry.isFailure()
-                ? left(new ParserError.MissingCell(cellRef.toString()))
-                : right(safeCellTry.get());
+        return Try.of(() -> new SafeCell(getCell(workbook, cellRef)))
+                .fold(
+                        e -> left(new ParserError.MissingCell(cellRef.toString())),
+                        Either::right
+                );
     }
 
     public static Cell getCell(Workbook workbook, CellReference cellRef) {

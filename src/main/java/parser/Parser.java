@@ -1,7 +1,7 @@
 package parser;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import io.vavr.control.Either;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.util.function.Function;
 
@@ -15,8 +15,12 @@ public interface Parser<A>  {
     /**
      * Description d'un flatMap pour Parser
      */
-    static <A, B> Parser<B> flatMap(Parser<A> fa, Function<A, Parser<B>> f) {
-        return (workbook, name) -> fa.parse(workbook, name).flatMap(a -> f.apply(a).parse(workbook, name));
+    static <A, B> Parser<B> flatMap(Parser<A> fa,
+                                    Function<A, Parser<B>> f) {
+        return (workbook, name) ->
+                fa.parse(workbook, name).flatMap(a ->
+                        f.apply(a).parse(workbook, name)
+                );
     }
 
     static <A> Parser<A> success(A a) {

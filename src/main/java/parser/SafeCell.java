@@ -38,6 +38,20 @@ public class SafeCell {
         );
     }
 
+    public Either<ParserError, Integer> asInteger() {
+        return Try.of(() -> Double.valueOf(this.cell.getNumericCellValue()).intValue()).fold(
+                e -> Either.left(new ParserError.InvalidFormat(this.reference, "Integer", e.getMessage())),
+                Either::right
+        );
+    }
+
+    public Either<ParserError, String> asString() {
+        return Try.of(() -> this.cell.getStringCellValue()).fold(
+                e -> Either.left(new ParserError.InvalidFormat(this.reference, "String", e.getMessage())),
+                Either::right
+        );
+    }
+
     private Option<Integer> doubleToInt(Double d) {
         if (new BigDecimal(d).remainder(new BigDecimal(1)).equals(ZERO)){
             return Some(d.intValue());

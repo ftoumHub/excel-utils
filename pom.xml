@@ -34,7 +34,7 @@
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>0.10.0</version>
+            <version>0.10.3</version>
         </dependency>
 
         <!-- Testing -->
@@ -79,6 +79,8 @@
                         <include>S03_Numeric_Range_V2.java</include>
                         <include>S04_Parsing_API.java</include>
                         <include>S05_FlatMap_On_Parser.java</include>
+                        <include>S06_Curried_Parser.java</include>
+                        <include>S07_ParsingProduct.java</include>
                     </includes>
                 </configuration>
             </plugin>
