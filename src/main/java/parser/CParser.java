@@ -1,16 +1,14 @@
 package parser;
 
-import java.util.function.Function;
-
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.control.Either;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import io.vavr.control.Either;
+import java.util.function.Function;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
-import static io.vavr.API.For;
 import static io.vavr.API.Match;
 import static io.vavr.Patterns.$Left;
 import static io.vavr.Patterns.$Right;
@@ -33,8 +31,8 @@ public abstract class CParser<A>  {
         };
     }
 
-    public <A, B> CParser<B> flatMapF(Function<A, Either<ParserError, B>> f) {
-        return flatMap(a -> lift(f.apply((A)a)));
+    public <B> CParser<B> flatMapF(Function<A, Either<ParserError, B>> f) {
+        return flatMap(a -> lift(f.apply(a)));
     }
 
     static <A, B> CParser<B> flatMap(CParser<A> fa, Function<A, CParser<B>> f) {
@@ -78,7 +76,6 @@ public abstract class CParser<A>  {
         return new CParser<Tuple2<A, B>>() {
             @Override
             public Either<ParserError, Tuple2<A, B>> parse(Workbook workbook) {
-
                 final Tuple2<Either<ParserError, A>, Either<ParserError, B>> t = Tuple.of(pa.parse(workbook), pb.parse(workbook));
 
                 return Match(t).of(

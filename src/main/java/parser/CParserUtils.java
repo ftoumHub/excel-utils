@@ -14,7 +14,6 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.For;
 import static io.vavr.API.Match;
-import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
 import static libs.ExcelUtils.getArea;
 import static libs.ExcelUtils.getSafeCell;
@@ -26,10 +25,12 @@ import static parser.CParser.success;
 
 public class CParserUtils {
 
+    private CParserUtils() {}
+
     public static CParser<Seq<Double>> numericRange(String name) {
 
         Function<Seq<SafeCell>, Either<ParserError, Seq<Double>>> _ =
-                safeCells -> Either.sequenceRight(safeCells.map(sf -> sf.asDouble()).toList());
+                safeCells -> Either.sequenceRight(safeCells.map(SafeCell::asDouble).toList());
 
         return range(name).flatMapF(safeCells -> _.apply((Seq<SafeCell>)safeCells));
     }
@@ -46,8 +47,7 @@ public class CParserUtils {
             @Override
             public Either<ParserError, Seq<SafeCell>> parse(Workbook workbook) {
                 return getArea(workbook, name)
-                        .fold(
-                            error -> left(error),
+                        .fold(Either::left,
                             areaRef -> Either.sequenceRight(List.of(areaRef.getAllReferencedCells())
                                                 .map(cellRef -> getSafeCell(workbook, cellRef)).toList()));
             }

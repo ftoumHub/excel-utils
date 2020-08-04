@@ -15,29 +15,29 @@ import parser.SafeCell;
 
 public class ExcelUtils {
 
+    private ExcelUtils() {}
+
     public static Either<ParserError, AreaReference> getArea(Workbook workbook, String name) {
         return Try.of(() -> new AreaReference(workbook.getName(name).getRefersToFormula(), workbook.getSpreadsheetVersion()))
                 .fold(
                         e -> left(new ParserError.MissingName(name)),
-                        areaRef -> right(areaRef)
+                        Either::right
                 );
     }
 
     public static Either<ParserError, SafeCell> getSafeCell(Workbook workbook, CellReference cellRef) {
-        Try safeCellTry = Try.of(() -> new SafeCell(
-                workbook.getSheet(cellRef.getSheetName())
-                        .getRow(cellRef.getRow())
-                        .getCell(cellRef.getCol())));
+        Try<SafeCell> safeCellTry = Try.of(() -> new SafeCell(getCell(workbook, cellRef)));
         return safeCellTry.isFailure()
                 ? left(new ParserError.MissingCell(cellRef.toString()))
-                : right((SafeCell)safeCellTry.get());
+                : right(safeCellTry.get());
     }
 
     public static Cell getCell(Workbook workbook, CellReference cellRef) {
+        // on a plusieurs accesseurs qui permettent, à partir d'une cellule de :
         return workbook
-                .getSheet(cellRef.getSheetName())
-                .getRow(cellRef.getRow())
-                .getCell(cellRef.getCol());
+                .getSheet(cellRef.getSheetName())   // trouver un onglet
+                .getRow(cellRef.getRow())           // trouver une colonne
+                .getCell(cellRef.getCol());         // trouver une cellule
     }
 
     public static Cell getCellAt(java.util.List<CellReference> cells, int i, Workbook workbook) {

@@ -1,6 +1,5 @@
 package parser;
 
-import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 
 public class Production {

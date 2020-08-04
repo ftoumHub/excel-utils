@@ -1,8 +1,15 @@
 package parser;
 
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.poi.ss.usermodel.Cell;
+
+import java.math.BigDecimal;
+
+import static io.vavr.API.None;
+import static io.vavr.API.Some;
+import static java.math.BigDecimal.ZERO;
 
 public class SafeCell {
 
@@ -27,7 +34,15 @@ public class SafeCell {
     public Either<ParserError, Double> asDouble() {
         return Try.of(() -> this.cell.getNumericCellValue()).fold(
                 e -> Either.left(new ParserError.InvalidFormat(this.reference, "Numeric", e.getMessage())),
-                doubleTry -> Either.right(doubleTry)
+                Either::right
         );
+    }
+
+    private Option<Integer> doubleToInt(Double d) {
+        if (new BigDecimal(d).remainder(new BigDecimal(1)).equals(ZERO)){
+            return Some(d.intValue());
+        } else {
+            return None();
+        }
     }
 }

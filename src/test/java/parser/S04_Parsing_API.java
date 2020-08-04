@@ -38,7 +38,7 @@ public class S04_Parsing_API extends WithExampleWorkbook{
         // On transforme ainsi un Either<ParserError, Seq<Double>> en Either<ParserError, Double>
         // flatMap va retourner la première erreur rencontrée sous forme de ParserError ou bien enchainer les traitements
         assertEquals(numeric().parse(workbook, "ExplorationFee"),
-                     Right(Double.valueOf(1.4)));
+                     Right(1.4));
 
         assertThat(numeric().parse(workbook, "OilProd").getLeft())
                    .isInstanceOf(ParserError.InvalidFormat.class);

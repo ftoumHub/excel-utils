@@ -4,9 +4,12 @@ import io.vavr.collection.List;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Function;
+
 import static io.vavr.API.Left;
 import static io.vavr.API.Right;
 import static io.vavr.API.println;
+import static java.util.function.Function.identity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -81,5 +84,7 @@ public class S01_Introduction {
         println(List.of(1, 2, 3, 4).reverse());
 
         println(List.of(List.of(1, 2), List.of(3, 4)).flatMap(i -> i));
+        // équivalent à :
+        println(List.of(List.of(1, 2), List.of(3, 4)).flatMap(identity()));
     }
 }

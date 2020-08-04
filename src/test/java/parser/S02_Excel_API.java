@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import util.SafeCell_V0;
 
 import static io.vavr.API.println;
+import static libs.ExcelUtils.getCell;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -58,16 +59,12 @@ public class S02_Excel_API extends WithExampleWorkbook {
     }
 
     private Cell extractOilProdFirstCell() {
-        AreaReference area = new AreaReference(workbook.getName("OilProd").getRefersToFormula(),
+        AreaReference area = new AreaReference(
+                workbook.getName("OilProd").getRefersToFormula(),
                 workbook.getSpreadsheetVersion());
 
         CellReference cellRef = List.of(area.getAllReferencedCells()).head();
 
-        // on a plusieurs accesseurs qui permettent, à partir d'une cellule de :
-        Cell cell = workbook
-                .getSheet(cellRef.getSheetName()) // trouver un onglet
-                .getRow(cellRef.getRow())         // trouver une colonne
-                .getCell(cellRef.getCol());       // trouver une cellule
-        return cell;
+        return getCell(workbook, cellRef);
     }
 }

@@ -23,9 +23,11 @@ import static parser.Parser.success;
 
 public class ParserUtils {
 
+    private ParserUtils() {}
+
     public static Either<ParserError, Seq<Double>> numericRangeV2(Workbook workbook, String name) {
         return getArea(workbook, name).fold(
-                parseError -> left(parseError),
+                Either::left,
                 areaRef -> {
                     Either<ParserError, Seq<SafeCell>> seqSafe =
                             sequenceRight(List.of(areaRef.getAllReferencedCells())
