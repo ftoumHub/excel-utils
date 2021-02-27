@@ -1,88 +1,77 @@
 package parser;
 
-import io.vavr.collection.List;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 
-import static io.vavr.API.Left;
-import static io.vavr.API.Right;
-import static io.vavr.API.println;
-import static java.util.function.Function.identity;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static io.vavr.API.*;
+import static java.util.Objects.isNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class S01_Introduction {
 
     /**
-     * Un exemple de fonction "partielle", susceptible de retourner une exception.
+     * Un exemple de méthode "partielle", susceptible de retourner une exception.
      */
-    // tag::estAdultePartielle[]
-    public Boolean estAdultePartielle(Integer age) {
-        if (age < 0) {
-            throw new IllegalArgumentException("l'age doit être un entier positif");
-        }
+    public Boolean estAdulte_Partielle(Integer age) {
+        if (age < 0) throw new IllegalArgumentException("l'age doit être un entier positif");
         return age >= 18;
     }
-    // end::estAdultePartielle[]
 
-    // tag::estAdultePartielleTest[]
     @Test
     public void estAdultePartielleTest() {
-        assertFalse(estAdultePartielle(4));
-
-        assertTrue(estAdultePartielle(25)); // true
-
-        assertThrows(IllegalArgumentException.class, () -> estAdultePartielle(-10));
+        assertFalse(estAdulte_Partielle(4));
+        assertTrue(estAdulte_Partielle(25));
+        assertThrows(IllegalArgumentException.class, () -> estAdulte_Partielle(-10));
     }
-    // end::estAdultePartielleTest[]
 
     /**
      * On a donc un problème car lorsqu'on appelle cette méthode, on ne sait pas si il s'agit
-     * d'une fonction partielle ou totale (sauf si on indique throws ... dans la signature de la méthode).
+     * d'une méthode partielle ou totale (sauf si on indique throws ... dans la signature de la méthode).
      * On doit regarder l'implémentation ou la doc...
-     *
-     * Le seul moyen de traiter l'erreur est donc de catcher la ou les exceptions qui peuvent survenir.
-     *
+     * <p>
+     * Le seul moyen de traiter l'erreur du point de vu de l'appelant est donc de catcher la ou les exceptions qui peuvent survenir.
+     * <p>
      * Une technique consiste à "augmenter" le type de retour en utilisant par exemple Either.
+     * <p>
      * On indique dans la signature le type d'erreur.
      */
-
-    // tag::estAdulte[]
     public Either<String, Boolean> estAdulte(Integer age) {
+        if (isNull(age)) {
+            return Either.left("l'age ne peut pas être null");
+        }
+
         if (age < 0) {
             return Either.left("l'age doit être un entier positif");
         } else {
             return Either.right(age >= 18);
         }
     }
-    // end::estAdulte[]
 
-    // tag::estAdulteTest[]
     @Test
     public void estAdulteTest() {
         assertEquals(Right(false), estAdulte(4));
-
         assertEquals(Right(true), estAdulte(25));
 
+        assertEquals(Left("l'age ne peut pas être null"), estAdulte(null));
         assertEquals(Left("l'age doit être un entier positif"), estAdulte(-2));
     }
-    // end::estAdulteTest[]
 
+
+    public Either<String, Boolean> estAdulte_Vavr(Integer age) {
+        return Option(age)
+                .fold(() -> Either.left("l'age ne peut pas être null"),
+                        a -> {
+                            if (a < 0) return Either.left("l'age doit être un entier positif");
+                            else return Either.right(age >= 18);
+                        });
+    }
 
     @Test
-    public void deriverDesFonctions() {
-        println(List.empty());
+    public void estAdulteVavrTest() {
+        assertEquals(Right(false), estAdulte_Vavr(4));
+        assertEquals(Right(true), estAdulte_Vavr(25));
 
-        println(List.of(1, 2, 3));
-
-        println(List.of(1, 2).appendAll(List.of(3, 4)));
-
-        println(List.of(1, 2, 3, 4).reverse());
-
-        println(List.of(List.of(1, 2), List.of(3, 4)).flatMap(i -> i));
-        // équivalent à :
-        println(List.of(List.of(1, 2), List.of(3, 4)).flatMap(identity()));
+        assertEquals(Left("l'age ne peut pas être null"), estAdulte_Vavr(null));
+        assertEquals(Left("l'age doit être un entier positif"), estAdulte_Vavr(-2));
     }
 }

@@ -1,16 +1,11 @@
 package parser;
 
-import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.control.Either.left;
-import static io.vavr.control.Either.right;
-import static io.vavr.control.Either.sequenceRight;
+import static io.vavr.API.*;
+import static io.vavr.control.Either.*;
 import static libs.ExcelUtils.getArea;
 import static libs.ExcelUtils.getSafeCell;
 import static parser.Parser.fail;
@@ -29,7 +24,7 @@ public class ParserUtils {
      */
     public static Either<ParserError, Seq<Double>> numericRange(final Workbook workbook, final String name) {
         return getArea(workbook, name)
-                .flatMap(area -> sequenceRight(List.of(area.getAllReferencedCells()).map(cell -> getSafeCell(workbook, cell))))
+                .flatMap(area -> sequenceRight(List(area.getAllReferencedCells()).map(cell -> getSafeCell(workbook, cell))))
                 .flatMap(safeCells -> sequenceRight(safeCells.map(SafeCell::asDouble).toList()));
     }
 
@@ -38,7 +33,7 @@ public class ParserUtils {
     // int: Parser<Integer>
     public static Either<ParserError, Seq<Integer>> intRange(final Workbook workbook, final String name) {
         return getArea(workbook, name)
-                .flatMap(area -> sequenceRight(List.of(area.getAllReferencedCells()).map(cell -> getSafeCell(workbook, cell))))
+                .flatMap(area -> sequenceRight(List(area.getAllReferencedCells()).map(cell -> getSafeCell(workbook, cell))))
                 .flatMap(safeCells -> sequenceRight(safeCells.map(SafeCell::asInteger).toList()));
     }
 
@@ -46,7 +41,7 @@ public class ParserUtils {
     // string: Parser<String>
     public static Either<ParserError, Seq<String>> stringRange(final Workbook workbook, final String name) {
         return getArea(workbook, name)
-                .flatMap(area -> sequenceRight(List.of(area.getAllReferencedCells()).map(cell -> getSafeCell(workbook, cell))))
+                .flatMap(area -> sequenceRight(List(area.getAllReferencedCells()).map(cell -> getSafeCell(workbook, cell))))
                 .flatMap(safeCells -> sequenceRight(safeCells.map(SafeCell::asString).toList()));
     }
 

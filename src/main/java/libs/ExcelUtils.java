@@ -1,7 +1,6 @@
 package libs;
 
 import io.vavr.control.Either;
-import io.vavr.control.Try;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
@@ -9,6 +8,7 @@ import org.apache.poi.ss.util.CellReference;
 import parser.ParserError;
 import parser.SafeCell;
 
+import static io.vavr.API.Try;
 import static io.vavr.control.Either.left;
 
 public class ExcelUtils {
@@ -16,7 +16,7 @@ public class ExcelUtils {
     private ExcelUtils() {}
 
     public static Either<ParserError, AreaReference> getArea(Workbook workbook, String name) {
-        return Try.of(() -> new AreaReference(workbook.getName(name).getRefersToFormula(), workbook.getSpreadsheetVersion()))
+        return Try(() -> new AreaReference(workbook.getName(name).getRefersToFormula(), workbook.getSpreadsheetVersion()))
                 .fold(
                         e -> left(new ParserError.MissingName(name)),
                         Either::right
@@ -24,7 +24,7 @@ public class ExcelUtils {
     }
 
     public static Either<ParserError, SafeCell> getSafeCell(Workbook workbook, CellReference cellRef) {
-        return Try.of(() -> new SafeCell(getCell(workbook, cellRef)))
+        return Try(() -> new SafeCell(getCell(workbook, cellRef)))
                 .fold(
                         e -> left(new ParserError.MissingCell(cellRef.toString())),
                         Either::right

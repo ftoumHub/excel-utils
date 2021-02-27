@@ -1,11 +1,13 @@
 package parser;
 
+import io.vavr.API;
 import io.vavr.collection.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
 import org.junit.jupiter.api.Test;
 
+import static io.vavr.API.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,6 +16,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Création d'une première version de la function numericRange.
  */
 public class S03_Numeric_Range_V0 extends WithExampleWorkbook {
+
+    /**
+     * On retourne une liste de Double, ou une exception si on est pas sur une plage de valeurs numériques
+     */
+    private static List<Double> numericRangeV0(Workbook workbook, String name) {
+        String formula = workbook.getName(name).getRefersToFormula();
+        AreaReference area = new AreaReference(formula, workbook.getSpreadsheetVersion());
+
+        return List(area.getAllReferencedCells())
+                .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
+                        .getRow(cellRef.getRow())
+                        .getCell(cellRef.getCol()))
+                .map(Cell::getNumericCellValue);
+    }
 
     @Test
     public void numericRangeV0_works_but_is_not_safe() {
@@ -35,18 +51,4 @@ public class S03_Numeric_Range_V0 extends WithExampleWorkbook {
         assertTrue(thrown.getMessage().contains("Cannot get a NUMERIC value from a STRING cell"));
     }
 
-
-    /**
-     * On retourne une liste de Double, ou une exception si on est pas sur une plage de valeurs numériques
-     */
-    private static List<Double> numericRangeV0(Workbook workbook, String name) {
-        String formula = workbook.getName(name).getRefersToFormula();
-        AreaReference area = new AreaReference(formula, workbook.getSpreadsheetVersion());
-
-        return List.of(area.getAllReferencedCells())
-                .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
-                        .getRow(cellRef.getRow())
-                        .getCell(cellRef.getCol()))
-                .map(Cell::getNumericCellValue);
-    }
 }

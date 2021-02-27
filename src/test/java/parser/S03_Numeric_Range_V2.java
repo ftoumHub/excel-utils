@@ -1,21 +1,20 @@
 package parser;
 
+import io.vavr.API;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.Test;
 
-import static io.vavr.API.For;
-import static io.vavr.API.Right;
-import static io.vavr.API.Vector;
+import static io.vavr.API.*;
 import static libs.ExcelUtils.getArea;
 import static libs.ExcelUtils.getSafeCell;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static parser.ParserUtils.numericRange;
 
 /**
- * Dans cette version de numericRange on utilise l'interface ParserError pour représenter les erreurs possibles.
+ * Dans cette version de numericRange on utilise l'interface {@link ParserError} pour représenter les erreurs possibles.
  */
 public class S03_Numeric_Range_V2 extends WithExampleWorkbook {
 
@@ -42,29 +41,32 @@ public class S03_Numeric_Range_V2 extends WithExampleWorkbook {
         assertEquals(new ParserError.InvalidFormat("Sheet1!B4", "Numeric", "Cannot get a NUMERIC value from a STRING cell"),
                     numericRange(workbook, "PrimaryProduct").getLeft());
 
-        assertEquals( new ParserError.MissingName("foo"),
+        assertEquals(new ParserError.MissingName("foo"),
                     numericRange(workbook, "foo").getLeft());
     }
 
-    /**private static Either<ParserError, Seq<Double>> numericRangeV2_Old(Workbook workbook, String name) {
+    private static Either<ParserError, Seq<Double>> numericRangeV2_Old(Workbook workbook, String name) {
         return getArea(workbook, name).fold(
                 Either::left,
                 areaRef -> {
                     Either<ParserError, Seq<SafeCell>> seqSafe =
-                            sequenceRight(List.of(areaRef.getAllReferencedCells())
+                            Either.sequenceRight(List(areaRef.getAllReferencedCells())
                                     .map(cellRef -> getSafeCell(workbook, cellRef)));
-                    return sequenceRight(seqSafe.get().map(SafeCell::asDouble).toList());
+                    return Either.sequenceRight(seqSafe.get().map(SafeCell::asDouble).toList());
                 });
-    }*/
+    }
 
     private static Either<ParserError, Seq<Double>> numericRangeV2(Workbook workbook, String name) {
-        return getArea(workbook, name).fold(
-                Either::left,
-                area -> Either.sequenceRight(
-                        For(List.of(area.getAllReferencedCells()).map(cellRef -> getSafeCell(workbook, cellRef)),
-                                cells -> For(cells.map(SafeCell::asDouble))
-                                    .yield()
-                    ))
+        return getArea(workbook, name)
+                .fold(
+                        Either::left,
+                        area -> Either.sequenceRight(
+                                For(List(area.getAllReferencedCells())
+                                                .map(cellRef -> getSafeCell(workbook, cellRef)),
+                                        cells -> For(cells.map(SafeCell::asDouble))
+                                            .yield()
+                                )
+                        )
                 );
     }
 

@@ -1,5 +1,6 @@
 package parser;
 
+import io.vavr.API;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import util.ParserErrorClass;
 import util.SafeCell_V0;
 
+import static io.vavr.API.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,18 +58,18 @@ public class S03_Numeric_Range_V1 extends WithExampleWorkbook {
         // Problème, ici, on se retrouve avec une List<Either<ParserErrorClass, Double>>
         // On transforme cette liste en Either<ParserErrorClass, Seq<Double>> avec Either.sequenceRight
 
-        final List<Cell> cells = List.of(area.getAllReferencedCells())
-                .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
-                        .getRow(cellRef.getRow())
-                        .getCell(cellRef.getCol())).toList();
+        //final List<Cell> cells = List(area.getAllReferencedCells())
+        //        .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
+        //                .getRow(cellRef.getRow())
+        //                .getCell(cellRef.getCol())).toList();
 
-        final List<SafeCell_V0> safeCells = cells.map(SafeCell_V0::new);
+        //final List<SafeCell_V0> safeCells = cells.map(SafeCell_V0::new);
 
-        final List<Either<ParserErrorClass, Double>> doubles = safeCells.map(SafeCell_V0::asDouble);
+        //final List<Either<ParserErrorClass, Double>> doubles = safeCells.map(SafeCell_V0::asDouble);
 
-        final Either<ParserErrorClass, Seq<Double>> seqs = Either.sequenceRight(doubles);
+        //final Either<ParserErrorClass, Seq<Double>> seqs = Either.sequenceRight(doubles);
 
-        return Either.sequenceRight(List.of(area.getAllReferencedCells())
+        return Either.sequenceRight(List(area.getAllReferencedCells())
                 .map(cellRef -> workbook.getSheet(cellRef.getSheetName())
                         .getRow(cellRef.getRow())
                         .getCell(cellRef.getCol()))
